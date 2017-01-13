@@ -1,25 +1,31 @@
 package io.oasp.gastronomy.restaurant.offermanagement.service.impl.rest;
 
 import java.io.ByteArrayInputStream;
+import java.io.ByteArrayOutputStream;
+import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.OutputStream;
 import java.sql.Blob;
 import java.sql.SQLException;
 import java.util.LinkedList;
 import java.util.List;
 
+import javax.activation.DataHandler;
 import javax.inject.Inject;
 import javax.inject.Named;
 import javax.sql.rowset.serial.SerialBlob;
 import javax.sql.rowset.serial.SerialException;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
+import javax.ws.rs.core.Response.ResponseBuilder;
 
 import org.apache.cxf.helpers.IOUtils;
 import org.apache.cxf.jaxrs.ext.multipart.Attachment;
 import org.apache.cxf.jaxrs.ext.multipart.MultipartBody;
 
 import io.oasp.gastronomy.restaurant.general.logic.api.to.BinaryObjectEto;
+import io.oasp.gastronomy.restaurant.general.logic.base.UcManageBinaryObject;
 import io.oasp.gastronomy.restaurant.offermanagement.logic.api.Offermanagement;
 import io.oasp.gastronomy.restaurant.offermanagement.logic.api.to.DrinkEto;
 import io.oasp.gastronomy.restaurant.offermanagement.logic.api.to.MealEto;
@@ -41,6 +47,17 @@ import io.oasp.module.jpa.common.api.to.PaginatedListTo;
 public class OffermanagementRestServiceImpl implements OffermanagementRestService {
 
   private Offermanagement offermanagement;
+
+  @Inject
+  private UcManageBinaryObject ucManageBinaryObject;
+
+  /**
+   * @return ucManageBinaryObject
+   */
+  public UcManageBinaryObject getUcManageBinaryObject() {
+
+    return this.ucManageBinaryObject;
+  }
 
   /**
    * @param offerManagement the offerManagement to be set
@@ -221,6 +238,43 @@ public class OffermanagementRestServiceImpl implements OffermanagementRestServic
   public PaginatedListTo<ProductEto> findProductEtosByPost(ProductSearchCriteriaTo searchCriteriaTo) {
 
     return this.offermanagement.findProductEtos(searchCriteriaTo);
+  }
+
+  @Override
+  public Response getDownloadFile() throws SQLException, IOException {
+
+    File filePdf = new File("D:/Users/kugawand/Desktop/DBIntegration.pdf");
+    ResponseBuilder response = Response.ok(filePdf);
+    response.header("Content-Disposition", "attachment; filename=test.pdf");
+    return response.build();
+
+  }
+
+  @Override
+  // public Response uploadFile(MultipartBody multipartBody) throws SQLException, IOException {
+  public Response uploadFile(List<Attachment> attachments) throws SQLException, IOException {
+
+    BinaryObjectEto binaryObject = new BinaryObjectEto();
+    Blob blob = null;
+    for (Attachment attachment : attachments) {
+      DataHandler handler = attachment.getDataHandler();
+      try {
+        InputStream stream = handler.getInputStream();
+        OutputStream outputStream = new ByteArrayOutputStream();
+        IOUtils.copy(stream, outputStream);
+        byte[] byteArray = outputStream.toString().getBytes();
+        if (byteArray != null && byteArray.length != 0) {
+          blob = new SerialBlob(byteArray);
+          getUcManageBinaryObject().saveBinaryObject(blob, binaryObject);
+        }
+      } catch (SQLException e) {
+        throw new SQLException(e.getMessage(), e);
+      } catch (IOException e) {
+        throw new IOException(e.getMessage(), e);
+      }
+    }
+
+    return Response.ok("file uploaded").build();
   }
 
 }
