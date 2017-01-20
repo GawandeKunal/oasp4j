@@ -17,6 +17,7 @@ import javax.ws.rs.Produces;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 
+import org.apache.cxf.jaxrs.ext.multipart.Attachment;
 import org.apache.cxf.jaxrs.ext.multipart.Multipart;
 import org.apache.cxf.jaxrs.ext.multipart.MultipartBody;
 
@@ -243,7 +244,7 @@ public interface OffermanagementRestService extends RestService {
   public void updateProductPicture(@PathParam("id") long productId,
       @Multipart(value = "binaryObjectEto", type = MediaType.APPLICATION_JSON) BinaryObjectEto binaryObjectEto,
       @Multipart(value = "blob", type = MediaType.APPLICATION_OCTET_STREAM) InputStream picture)
-          throws SerialException, SQLException, IOException;
+      throws SerialException, SQLException, IOException;
 
   @SuppressWarnings("javadoc")
   @Produces("multipart/mixed")
@@ -282,4 +283,22 @@ public interface OffermanagementRestService extends RestService {
   @Path("/product/search")
   @POST
   public PaginatedListTo<ProductEto> findProductEtosByPost(ProductSearchCriteriaTo searchCriteriaTo);
+
+  @SuppressWarnings("javadoc")
+  @POST
+  @Path("/product/uploadFile")
+  @Consumes(MediaType.MULTIPART_FORM_DATA)
+  public Response uploadFile(List<Attachment> attachments) throws SQLException, IOException;
+  // public Response uploadFile(@PathParam("attachments") MultipartBody multipartBody) throws SQLException, IOException;
+
+  // file upload and download
+  @SuppressWarnings("javadoc")
+  /*
+   * @Produces({ "image/png", "image/jpeg", "application/pdf", "application/msword", "application/vnd.ms-excel",
+   * "text/plain" })
+   */
+  @Produces(MediaType.APPLICATION_OCTET_STREAM)
+  @GET
+  @Path("/product/downloadFile")
+  public Response getDownloadFile() throws SQLException, IOException;
 }
