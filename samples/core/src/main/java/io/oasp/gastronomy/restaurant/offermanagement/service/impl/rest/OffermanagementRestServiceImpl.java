@@ -253,7 +253,6 @@ public class OffermanagementRestServiceImpl implements OffermanagementRestServic
   }
 
   @Override
-  // public Response uploadFile(MultipartBody multipartBody) throws SQLException, IOException {
   public Response uploadFile(List<Attachment> attachments) throws SQLException, IOException {
 
     BinaryObjectEto binaryObject = new BinaryObjectEto();

@@ -284,18 +284,21 @@ public interface OffermanagementRestService extends RestService {
   @POST
   public PaginatedListTo<ProductEto> findProductEtosByPost(ProductSearchCriteriaTo searchCriteriaTo);
 
-  @SuppressWarnings("javadoc")
+  /**
+   * @param attachments : Upload files as an attachments.
+   * @return : returns "ok" as successful file upload response.
+   * @throws SQLException : for database exceptions
+   * @throws IOException : for input output exceptions.
+   */
   @POST
   @Path("/product/uploadFile")
   @Consumes(MediaType.MULTIPART_FORM_DATA)
   public Response uploadFile(List<Attachment> attachments) throws SQLException, IOException;
-  // public Response uploadFile(@PathParam("attachments") MultipartBody multipartBody) throws SQLException, IOException;
 
-  // file upload and download
-  @SuppressWarnings("javadoc")
-  /*
-   * @Produces({ "image/png", "image/jpeg", "application/pdf", "application/msword", "application/vnd.ms-excel",
-   * "text/plain" })
+  /**
+   * @return : get downloaded file in response.
+   * @throws SQLException : for database exceptions
+   * @throws IOException : for input output exceptions.
    */
   @Produces(MediaType.APPLICATION_OCTET_STREAM)
   @GET
